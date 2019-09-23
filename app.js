@@ -28,12 +28,19 @@ const UIController = (function() {
 
 // -- GLOBAL APP CONTROLLER
 const appController = (function(dataCtrl, UICtrl) {
-  const UISelectors = UICtrl.getSelectors();
+  const addEventListeners = function() {
+    const UISelectors = UICtrl.getSelectors();
+    UISelectors.inputSubmitButton.addEventListener('click', appAddItem);
+
+    // Return key pressed event in global document
+    document.addEventListener('keyup', function(e) {
+      if (e.keyCode === 13 || e.which === 13) appAddItem();
+    });
+  };
 
   const appAddItem = function() {
     // 1. Get field input data
     let input = UICtrl.getInput();
-    console.log(input);
 
     // 2. Add item to dataController
     // 3. Add item to UI
@@ -41,13 +48,13 @@ const appController = (function(dataCtrl, UICtrl) {
     // 5. Display budget in UI
   };
 
-  UISelectors.inputSubmitButton.addEventListener('click', appAddItem);
-
-  // Return key pressed event in global document
-  document.addEventListener('keyup', function(e) {
-    if (e.keyCode === 13 || e.which === 13) {
-      appAddItem();
+  return {
+    appInit: function() {
+      console.log('App running...');
+      addEventListeners();
     }
-  });
+  };
 })(dataController, UIController);
 // ^passed as arguments in case we want to change the module names
+
+appController.appInit();
