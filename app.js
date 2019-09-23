@@ -1,29 +1,30 @@
 // -- BUDGET DATA CONTROLLER
-const dataController = (function() {
-  let x = 23;
-  const add = function(a) {
-    return x + a;
-  };
-
-  return {
-    publicTest: function(y) {
-      return add(y);
-    }
-  };
-})();
+const dataController = (function() {})();
 
 // -- UI CONTROLLER
 const UIController = (function() {
   // code
 })();
 
-// -- APP CONTROLLER
+// -- GLOBAL APP CONTROLLER
 const appController = (function(dataCtrl, UICtrl) {
-  let z = dataCtrl.publicTest(5);
-  return {
-    publicTestTwo: function() {
-      console.log(z);
-    }
+  const appAddItem = function() {
+    // 1. Get field input data
+    // 2. Add item to dataController
+    // 3. Add item to UI
+    // 4. Calculate budget
+    // 5. Display budget in UI
+
+    console.log('ok');
   };
-  // passed as arguments in case we want to change the module names
+
+  document.querySelector('.add__btn').addEventListener('click', appAddItem);
+
+  // Return key pressed event added to global document
+  document.addEventListener('keyup', function(e) {
+    if (e.keyCode === 13 || e.which === 13) {
+      appAddItem();
+    }
+  });
 })(dataController, UIController);
+// ^passed as arguments in case we want to change the module names
