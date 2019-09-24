@@ -1,5 +1,5 @@
 // -- BUDGET DATA CONTROLLER
-const dataController = (function() {
+const dataController = (function () {
   // Store inc and exp in two arrays, part of the allItems object
   let data = {
     allItems: {
@@ -14,21 +14,21 @@ const dataController = (function() {
   };
 
   // Expense function constructor
-  const Expense = function(id, description, value) {
+  const Expense = function (id, description, value) {
     this.id = id;
     this.description = description;
     this.value = value;
   };
 
   // Income function constructor
-  const Income = function(id, description, value) {
+  const Income = function (id, description, value) {
     this.id = id;
     this.description = description;
     this.value = value;
   };
 
   return {
-    dataAddItem: function(type, description, value) {
+    dataAddItem: function (type, description, value) {
       let dataNewItem, id;
 
       // we want the new item id to be the id of the last
@@ -50,14 +50,14 @@ const dataController = (function() {
       return dataNewItem;
     },
 
-    test: function() {
+    test: function () {
       console.log(data);
     }
   };
 })();
 
 // -- UI CONTROLLER
-const UIController = (function() {
+const UIController = (function () {
   // -- Selectors
   const Selectors = {
     inputType: document.querySelector('.add__type'),
@@ -68,20 +68,23 @@ const UIController = (function() {
     listExpenses: document.querySelector('.expenses__list')
   };
   return {
-    getInput: function() {
+    getInput: function () {
       return {
         // type is either inc or exp
         type: Selectors.inputType.value,
         description: Selectors.inputDescription.value,
-        value: Selectors.inputValue.value
+        // returns a string so we use parseFloat to get the value
+        value: parseFloat(Selectors.inputValue.value)
       };
     },
     // object = item to insert
-    uiAddListItem: function(object, type) {
+    uiAddListItem: function (object, type) {
       let uiHtml;
       // Create HTML string with placeholder text, based on type
-      // only if description and value fields are not blank
-      if (object.description !== '' && object.value !== '') {
+      // only if description and value fields are not blank;
+      // as we used parsefloat, we need to check that object.value is !NaN
+      // !! not sure how to use JSON.parse and stringify to check for empty string
+      if (object.description !== '' && !isNaN(object.value) && object.value > 0) {
         if (type === 'inc') {
           uiHtml = `
             <div class="item clearfix" id="income-${object.id}">
@@ -116,52 +119,58 @@ const UIController = (function() {
         }
       } else console.log('Please fill out all fields');
     },
-    uiClearInput: function() {
+    uiClearInput: function () {
       Selectors.inputDescription.value = '';
       Selectors.inputValue.value = '';
       // Focus on the description field to easily add another item
       Selectors.inputDescription.focus();
     },
-    uiGetSelectors: function() {
+    uiGetSelectors: function () {
       return Selectors;
     }
   };
 })();
 
 // -- GLOBAL APP CONTROLLER
-const appController = (function(dataCtrl, UICtrl) {
-  const addEventListeners = function() {
+const appController = (function (dataCtrl, UICtrl) {
+  const addEventListeners = function () {
     const UISelectors = UICtrl.uiGetSelectors();
     UISelectors.inputSubmitButton.addEventListener('click', appAddItem);
 
     // Return key pressed event in global document
-    document.addEventListener('keyup', function(e) {
+    document.addEventListener('keyup', function (e) {
       if (e.keyCode === 13 || e.which === 13) appAddItem();
     });
   };
 
-  const appAddItem = function() {
+  const appTotalBudget = function () {
+    // Calculate total budget
+    // Return total budget
+    // Display total budget in UI
+  };
+
+  const appAddItem = function () {
     let appInput, appNewItem;
-    // 1. Get field input data
+    // Get field input data
     appInput = UICtrl.getInput();
 
-    // 2. Add item to Data Controller
+    // Add item to Data Controller
     // appNewItem will be passed to the uiAddListItem method
     appNewItem = dataCtrl.dataAddItem(
       appInput.type,
       appInput.description,
       appInput.value
     );
-    // 3. Add item to UI
+    // Add item to UI
     UICtrl.uiAddListItem(appNewItem, appInput.type);
     // Clear input
     UICtrl.uiClearInput();
-    // 4. Calculate budget
-    // 5. Display budget in UI
+    // Calculate and update budget
+    appTotalBudget();
   };
 
   return {
-    appInit: function() {
+    appInit: function () {
       console.log('App running...');
       addEventListeners();
     }
