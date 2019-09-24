@@ -63,7 +63,9 @@ const UIController = (function() {
     inputType: document.querySelector('.add__type'),
     inputDescription: document.querySelector('.add__description'),
     inputValue: document.querySelector('.add__value'),
-    inputSubmitButton: document.querySelector('.add__btn')
+    inputSubmitButton: document.querySelector('.add__btn'),
+    listIncomes: document.querySelector('.income__list'),
+    listExpenses: document.querySelector('.expenses__list')
   };
   return {
     getInput: function() {
@@ -75,7 +77,45 @@ const UIController = (function() {
       };
     },
 
-    getSelectors: function() {
+    // object = item to insert
+    uiAddListItem: function(object, type) {
+      let uiHtml;
+      // Create HTML string with placeholder text, based on type
+      if (type === 'inc') {
+        uiHtml = `
+        <div class="item clearfix" id="income-${object.id}">
+          <div class="item__description">${object.description}</div>
+            <div class="right clearfix">
+                <div class="item__value">${object.value}</div>
+                <div class="item__delete">
+                    <button class="item__delete--btn"><i class="ion-ios-close-outline">
+                    </i></button>
+                </div>
+            </div>
+        </div>
+        `;
+        // insert uiHtml in the DOM
+        Selectors.listIncomes.insertAdjacentHTML('beforeend', uiHtml);
+      } else if (type === 'exp') {
+        uiHtml = `
+        <div class="item clearfix" id="expense-${object.id}">
+          <div class="item__description">${object.description}</div>
+              <div class="right clearfix">
+                <div class="item__value">${object.value}</div>
+                <div class="item__percentage">21%</div>
+                <div class="item__delete">
+                <button class="item__delete--btn"><i class="ion-ios-close-outline">
+                </i></button>
+                </div>
+            </div>
+        </div>
+        `;
+        // insert uiHtml into the DOM
+        Selectors.listExpenses.insertAdjacentHTML('beforeend', uiHtml);
+      }
+    },
+
+    uiGetSelectors: function() {
       return Selectors;
     }
   };
@@ -84,7 +124,7 @@ const UIController = (function() {
 // -- GLOBAL APP CONTROLLER
 const appController = (function(dataCtrl, UICtrl) {
   const addEventListeners = function() {
-    const UISelectors = UICtrl.getSelectors();
+    const UISelectors = UICtrl.uiGetSelectors();
     UISelectors.inputSubmitButton.addEventListener('click', appAddItem);
 
     // Return key pressed event in global document
@@ -98,13 +138,15 @@ const appController = (function(dataCtrl, UICtrl) {
     // 1. Get field input data
     appInput = UICtrl.getInput();
 
-    // 2. Add item to dataController
+    // 2. Add item to Data Controller
+    // appNewItem will be passed to the uiAddListItem method
     appNewItem = dataCtrl.dataAddItem(
       appInput.type,
       appInput.description,
       appInput.value
     );
     // 3. Add item to UI
+    UICtrl.uiAddListItem(appNewItem, appInput.type);
     // 4. Calculate budget
     // 5. Display budget in UI
   };
