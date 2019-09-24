@@ -1,5 +1,32 @@
 // -- BUDGET DATA CONTROLLER
-const dataController = (function() {})();
+const dataController = (function() {
+  // Store inc and exp in two arrays, part of the allItems object
+  let allData = {
+    allItems: {
+      exp: [],
+      inc: []
+    },
+    // Total inc and exp amounts, shown at the top of the page
+    totalAmounts: {
+      exp: 0,
+      inc: 0
+    }
+  };
+
+  // Expense function constructor
+  const Expense = function(id, description, value) {
+    this.id = id;
+    this.description = description;
+    this.value = value;
+  };
+
+  // Income function constructor
+  const Income = function(id, description, value) {
+    this.id = id;
+    this.description = description;
+    this.value = value;
+  };
+})();
 
 // -- UI CONTROLLER
 const UIController = (function() {
