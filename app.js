@@ -76,45 +76,52 @@ const UIController = (function() {
         value: Selectors.inputValue.value
       };
     },
-
     // object = item to insert
     uiAddListItem: function(object, type) {
       let uiHtml;
       // Create HTML string with placeholder text, based on type
-      if (type === 'inc') {
-        uiHtml = `
-        <div class="item clearfix" id="income-${object.id}">
-          <div class="item__description">${object.description}</div>
-            <div class="right clearfix">
-                <div class="item__value">${object.value}</div>
-                <div class="item__delete">
+      // only if description and value fields are not blank
+      if (object.description !== '' && object.value !== '') {
+        if (type === 'inc') {
+          uiHtml = `
+            <div class="item clearfix" id="income-${object.id}">
+              <div class="item__description">${object.description}</div>
+                <div class="right clearfix">
+                    <div class="item__value">${object.value}</div>
+                    <div class="item__delete">
+                        <button class="item__delete--btn"><i class="ion-ios-close-outline">
+                        </i></button>
+                    </div>
+                </div>
+            </div>
+            `;
+          // insert uiHtml in the DOM
+          Selectors.listIncomes.insertAdjacentHTML('beforeend', uiHtml);
+        } else if (type === 'exp') {
+          uiHtml = `
+            <div class="item clearfix" id="expense-${object.id}">
+              <div class="item__description">${object.description}</div>
+                  <div class="right clearfix">
+                    <div class="item__value">${object.value}</div>
+                    <div class="item__percentage">21%</div>
+                    <div class="item__delete">
                     <button class="item__delete--btn"><i class="ion-ios-close-outline">
                     </i></button>
+                    </div>
                 </div>
             </div>
-        </div>
-        `;
-        // insert uiHtml in the DOM
-        Selectors.listIncomes.insertAdjacentHTML('beforeend', uiHtml);
-      } else if (type === 'exp') {
-        uiHtml = `
-        <div class="item clearfix" id="expense-${object.id}">
-          <div class="item__description">${object.description}</div>
-              <div class="right clearfix">
-                <div class="item__value">${object.value}</div>
-                <div class="item__percentage">21%</div>
-                <div class="item__delete">
-                <button class="item__delete--btn"><i class="ion-ios-close-outline">
-                </i></button>
-                </div>
-            </div>
-        </div>
-        `;
-        // insert uiHtml into the DOM
-        Selectors.listExpenses.insertAdjacentHTML('beforeend', uiHtml);
-      }
+            `;
+          // insert uiHtml into the DOM
+          Selectors.listExpenses.insertAdjacentHTML('beforeend', uiHtml);
+        }
+      } else console.log('Please fill out all fields');
     },
-
+    uiClearInput: function() {
+      Selectors.inputDescription.value = '';
+      Selectors.inputValue.value = '';
+      // Focus on the description field to easily add another item
+      Selectors.inputDescription.focus();
+    },
     uiGetSelectors: function() {
       return Selectors;
     }
@@ -147,6 +154,8 @@ const appController = (function(dataCtrl, UICtrl) {
     );
     // 3. Add item to UI
     UICtrl.uiAddListItem(appNewItem, appInput.type);
+    // Clear input
+    UICtrl.uiClearInput();
     // 4. Calculate budget
     // 5. Display budget in UI
   };
