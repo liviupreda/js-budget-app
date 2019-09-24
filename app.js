@@ -1,7 +1,7 @@
 // -- BUDGET DATA CONTROLLER
 const dataController = (function() {
   // Store inc and exp in two arrays, part of the allItems object
-  let allData = {
+  let data = {
     allItems: {
       exp: [],
       inc: []
@@ -25,6 +25,34 @@ const dataController = (function() {
     this.id = id;
     this.description = description;
     this.value = value;
+  };
+
+  return {
+    dataAddItem: function(type, description, value) {
+      let dataNewItem, id;
+
+      // we want the new item id to be the id of the last
+      // element in the array + 1 (e.g. In case we delete items)
+      if (data.allItems[type].length > 0) {
+        id = data.allItems[type][data.allItems[type].length - 1].id + 1;
+      } else id = 0;
+
+      // Type exp => new Expense, else new Income
+      if (type === 'exp') {
+        dataNewItem = new Expense(id, description, value);
+      } else if (type === 'inc') {
+        dataNewItem = new Income(id, description, value);
+      }
+
+      // Push item based on type in the data structure
+      // (select either exp or inc array based on [type])
+      data.allItems[type].push(dataNewItem);
+      return dataNewItem;
+    },
+
+    test: function() {
+      console.log(data);
+    }
   };
 })();
 
@@ -66,10 +94,16 @@ const appController = (function(dataCtrl, UICtrl) {
   };
 
   const appAddItem = function() {
+    let appInput, appNewItem;
     // 1. Get field input data
-    let input = UICtrl.getInput();
+    appInput = UICtrl.getInput();
 
     // 2. Add item to dataController
+    appNewItem = dataCtrl.dataAddItem(
+      appInput.type,
+      appInput.description,
+      appInput.value
+    );
     // 3. Add item to UI
     // 4. Calculate budget
     // 5. Display budget in UI
