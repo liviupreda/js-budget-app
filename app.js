@@ -305,21 +305,27 @@ const appController = (function(dataCtrl, UICtrl) {
     // Get field input data
     appInput = UICtrl.getInput();
 
-    // Add item to Data Controller
-    // appNewItem will be passed to the uiAddListItem method
-    appNewItem = dataCtrl.dataAddItem(
-      appInput.type,
-      appInput.description,
-      appInput.value
-    );
-    // Add item to UI
-    UICtrl.uiAddListItem(appNewItem, appInput.type);
-    // Clear input
-    UICtrl.uiClearInput();
-    // Calculate and update budget for every new item entered
-    appTotalBudget();
-    // Calculate and update %'s
-    appUpdatePercentages();
+    if (
+      appInput.description !== '' &&
+      !isNaN(appInput.value) &&
+      appInput.value > 0
+    ) {
+      // Add item to Data Controller
+      // appNewItem will be passed to the uiAddListItem method
+      appNewItem = dataCtrl.dataAddItem(
+        appInput.type,
+        appInput.description,
+        appInput.value
+      );
+      // Add item to UI
+      UICtrl.uiAddListItem(appNewItem, appInput.type);
+      // Clear input
+      UICtrl.uiClearInput();
+      // Calculate and update budget for every new item entered
+      appTotalBudget();
+      // Calculate and update %'s
+      appUpdatePercentages();
+    } else console.log('Please fill out all fields');
   };
 
   const appDeleteItem = function(e) {
