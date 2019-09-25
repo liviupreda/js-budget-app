@@ -155,7 +155,8 @@ const UIController = (function() {
     topExpenses: document.querySelector('.budget__expenses--value'),
     topPercentage: document.querySelector('.budget__expenses--percentage'),
     bottomContainer: document.querySelector('.container'),
-    bottomItemPercs: '.item__percentage'
+    bottomItemPercs: '.item__percentage',
+    topCurrentDate: document.querySelector('.budget__title--month')
   };
 
   // Number formatting: -- prepend '+' to incs and '-' to exps
@@ -297,6 +298,29 @@ const UIController = (function() {
         }
       });
     },
+    uiDisplayDate: function() {
+      let currTime, currYear, currMonth;
+      // use the Date constructor to display the current time
+      // return the current month
+      let months = [
+        'January',
+        'February',
+        'March',
+        'April',
+        'May',
+        'June',
+        'July',
+        'August',
+        'September',
+        'October',
+        'November',
+        'December'
+      ];
+      currTime = new Date();
+      currMonth = currTime.getMonth();
+      currYear = currTime.getFullYear();
+      Selectors.topCurrentDate.textContent = months[currMonth] + ' ' + currYear;
+    },
     uiGetSelectors: function() {
       return Selectors;
     }
@@ -391,6 +415,8 @@ const appController = (function(dataCtrl, UICtrl) {
   return {
     appInit: function() {
       console.log('App running...');
+      // Show current date
+      UICtrl.uiDisplayDate();
       // Once app is initialized, display budget, inc, exp and % initial values (0)
       UICtrl.displayBudget({
         totalBudget: 0,
