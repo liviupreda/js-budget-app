@@ -154,7 +154,8 @@ const UIController = (function() {
     topIncome: document.querySelector('.budget__income--value'),
     topExpenses: document.querySelector('.budget__expenses--value'),
     topPercentage: document.querySelector('.budget__expenses--percentage'),
-    bottomContainer: document.querySelector('.container')
+    bottomContainer: document.querySelector('.container'),
+    bottomItemPercs: '.item__percentage'
   };
   return {
     getInput: function() {
@@ -238,6 +239,28 @@ const UIController = (function() {
         Selectors.topPercentage.textContent = '---';
       }
     },
+    uiDisplayPercentages: function(percs) {
+      // returns a node list
+      let percFields = document.querySelectorAll(Selectors.bottomItemPercs);
+      // loop through nodes and change the textContent for each
+      // instead of converting the node list to an array, we shall
+      // write a nodeListForEach function to do this
+      const nodeListForEach = function(list, callback) {
+        for (let i = 0; i < list.length; i++) {
+          // call the callback function in the nodeListForEach function
+          callback(list[i], i);
+        }
+      };
+
+      nodeListForEach(percFields, function(element, index) {
+        // Make sure to not display negative or 0%
+        if (percs[index] > 0) {
+          element.textContent = percs[index] + '%';
+        } else {
+          element.textContent = percs[index] + '---';
+        }
+      });
+    },
     uiGetSelectors: function() {
       return Selectors;
     }
@@ -274,7 +297,7 @@ const appController = (function(dataCtrl, UICtrl) {
     // read %'s from dataController
     let percentages = dataCtrl.dataGetPercentages();
     // update UI with new %'s
-    console.log(percentages);
+    UICtrl.uiDisplayPercentages(percentages);
   };
 
   const appAddItem = function() {
