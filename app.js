@@ -171,16 +171,8 @@ const UIController = (function() {
     uiAddListItem: function(object, type) {
       let uiHtml;
       // Create HTML string with placeholder text, based on type
-      // only if description and value fields are not blank;
-      // as we used parsefloat, we need to check that object.value is !NaN
-      // -- ?? how to use JSON.parse and stringify to check for empty string ??
-      if (
-        object.description !== '' &&
-        !isNaN(object.value) &&
-        object.value > 0
-      ) {
-        if (type === 'inc') {
-          uiHtml = `
+      if (type === 'inc') {
+        uiHtml = `
             <div class="item clearfix" id="inc-${object.id}">
               <div class="item__description">${object.description}</div>
                 <div class="right clearfix">
@@ -192,10 +184,10 @@ const UIController = (function() {
                 </div>
             </div>
             `;
-          // insert uiHtml in the DOM
-          Selectors.listIncomes.insertAdjacentHTML('beforeend', uiHtml);
-        } else if (type === 'exp') {
-          uiHtml = `
+        // insert uiHtml in the DOM
+        Selectors.listIncomes.insertAdjacentHTML('beforeend', uiHtml);
+      } else if (type === 'exp') {
+        uiHtml = `
             <div class="item clearfix" id="exp-${object.id}">
               <div class="item__description">${object.description}</div>
                   <div class="right clearfix">
@@ -208,10 +200,9 @@ const UIController = (function() {
                 </div>
             </div>
             `;
-        }
         // insert uiHtml into the DOM
         Selectors.listExpenses.insertAdjacentHTML('beforeend', uiHtml);
-      } else console.log('Please fill out all fields');
+      }
     },
     // id = inc-x/ exp-y
     uiDeleteListItem: function(id) {
@@ -305,8 +296,9 @@ const appController = (function(dataCtrl, UICtrl) {
     // Get field input data
     appInput = UICtrl.getInput();
 
-    // Add item to Data Controller
-    // appNewItem will be passed to the uiAddListItem method
+    // only if description and value fields are not blank;
+    // as we used parsefloat, we need to check that object.value is !NaN
+    // -- ?? how to use JSON.parse and stringify to check for empty string ??
     if (
       appInput.description !== '' &&
       !isNaN(appInput.value) &&
@@ -322,12 +314,6 @@ const appController = (function(dataCtrl, UICtrl) {
       // Add item to UI
       UICtrl.uiAddListItem(appNewItem, appInput.type);
 
-      // Clear input
-      UICtrl.uiClearInput();
-      // Calculate and update budget for every new item entered
-      appTotalBudget();
-      // Calculate and update %'s
-      appUpdatePercentages();
       // Clear input
       UICtrl.uiClearInput();
       // Calculate and update budget for every new item entered
