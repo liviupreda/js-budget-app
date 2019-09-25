@@ -157,6 +157,36 @@ const UIController = (function() {
     bottomContainer: document.querySelector('.container'),
     bottomItemPercs: '.item__percentage'
   };
+
+  // Number formatting: -- prepend '+' to incs and '-' to exps
+  // -- append '.' + exactly 2 decimals
+  // -- comma separator between thousands
+  const uiFormatNumber = function(number, type) {
+    let numberSplit, integer, decimals;
+    // get absolute value of the number
+    number = Math.abs(number);
+    // set 2 decimals, including .00 if no decimals;
+    // toFixed is a method of the Number prototype, returns a String
+    number = number.toFixed(2);
+    // split the number string to decimals and integer
+    numberSplit = number.split('.');
+    integer = numberSplit[0];
+    // add comma separator between thousand, if the case
+    if (integer.length > 3) {
+      // The arguments of substring() represent the starting and ending indexes
+      //  the arguments of substr() represent the starting index and the number
+      // of characters to include in the returned string.
+      integer =
+        integer.substr(0, integer.length - 3) +
+        ',' +
+        integer.substr(integer.length - 3, 3);
+    }
+
+    decimals = numberSplit[1];
+    // prepend '+' to incs and '-' to exps
+
+    return (type === 'exp' ? '-' : '+') + ' ' + integer + '.' + decimals;
+  };
   return {
     getInput: function() {
       return {
@@ -176,7 +206,10 @@ const UIController = (function() {
             <div class="item clearfix" id="inc-${object.id}">
               <div class="item__description">${object.description}</div>
                 <div class="right clearfix">
-                    <div class="item__value">${object.value}</div>
+                    <div class="item__value">${uiFormatNumber(
+                      object.value,
+                      type
+                    )}</div>
                     <div class="item__delete">
                         <button class="item__delete--btn"><i class="ion-ios-close-outline">
                         </i></button>
@@ -191,7 +224,10 @@ const UIController = (function() {
             <div class="item clearfix" id="exp-${object.id}">
               <div class="item__description">${object.description}</div>
                   <div class="right clearfix">
-                    <div class="item__value">${object.value}</div>
+                    <div class="item__value">${uiFormatNumber(
+                      object.value,
+                      type
+                    )}</div>
                     <div class="item__percentage">21%</div>
                     <div class="item__delete">
                     <button class="item__delete--btn"><i class="ion-ios-close-outline">
@@ -219,9 +255,18 @@ const UIController = (function() {
     },
     // Display total budget, inc, exp & % in the UI
     displayBudget: function(object) {
-      Selectors.topBudget.textContent = object.totalBudget;
-      Selectors.topIncome.textContent = object.totalInc;
-      Selectors.topExpenses.textContent = object.totalExp;
+      let type;
+      // Prepend + or - on the total budget if > or respectively < 0
+      object.totalBudget >= 0 ? (type = 'inc') : (type = 'exp');
+      Selectors.topBudget.textContent = uiFormatNumber(
+        object.totalBudget,
+        type
+      );
+      Selectors.topIncome.textContent = uiFormatNumber(object.totalInc, 'inc');
+      Selectors.topExpenses.textContent = uiFormatNumber(
+        object.totalExp,
+        'exp'
+      );
       // only display percentage if > 0 (i.e. incomes added)
       // otherwise display '---'
       if (object.percentage > 0) {
