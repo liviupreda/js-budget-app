@@ -111,7 +111,8 @@ const UIController = (function() {
     topBudget: document.querySelector('.budget__value'),
     topIncome: document.querySelector('.budget__income--value'),
     topExpenses: document.querySelector('.budget__expenses--value'),
-    topPercentage: document.querySelector('.budget__expenses--percentage')
+    topPercentage: document.querySelector('.budget__expenses--percentage'),
+    bottomContainer: document.querySelector('.container')
   };
   return {
     getInput: function() {
@@ -129,7 +130,7 @@ const UIController = (function() {
       // Create HTML string with placeholder text, based on type
       // only if description and value fields are not blank;
       // as we used parsefloat, we need to check that object.value is !NaN
-      // -- ?? how to use JSON.parse and stringify to check for empty string
+      // -- ?? how to use JSON.parse and stringify to check for empty string ??
       if (
         object.description !== '' &&
         !isNaN(object.value) &&
@@ -137,7 +138,7 @@ const UIController = (function() {
       ) {
         if (type === 'inc') {
           uiHtml = `
-            <div class="item clearfix" id="income-${object.id}">
+            <div class="item clearfix" id="inc-${object.id}">
               <div class="item__description">${object.description}</div>
                 <div class="right clearfix">
                     <div class="item__value">${object.value}</div>
@@ -152,7 +153,7 @@ const UIController = (function() {
           Selectors.listIncomes.insertAdjacentHTML('beforeend', uiHtml);
         } else if (type === 'exp') {
           uiHtml = `
-            <div class="item clearfix" id="expense-${object.id}">
+            <div class="item clearfix" id="exp-${object.id}">
               <div class="item__description">${object.description}</div>
                   <div class="right clearfix">
                     <div class="item__value">${object.value}</div>
@@ -204,6 +205,9 @@ const appController = (function(dataCtrl, UICtrl) {
     document.addEventListener('keyup', function(e) {
       if (e.keyCode === 13 || e.which === 13) appAddItem();
     });
+    // Add event handler for .container; this will be used with event delegation
+    // to determine when the delete button is pressed for both inc and exp
+    UISelectors.bottomContainer.addEventListener('click', appDeleteItem);
   };
 
   const appTotalBudget = function() {
@@ -233,6 +237,26 @@ const appController = (function(dataCtrl, UICtrl) {
     UICtrl.uiClearInput();
     // Calculate and update budget for every new item entered
     appTotalBudget();
+  };
+
+  const appDeleteItem = function(e) {
+    // move up from the delete 4 times to target the div .item,
+    // which added when each item is added (uiAddListItem())
+    let itemId, splitId, type, id;
+    itemId = e.target.parentNode.parentNode.parentNode.parentNode.id;
+    console.log(itemId);
+    if (itemId) {
+      // inc-x ; exp-y
+      splitId = itemId.split('-');
+      type = splitId[0];
+      id = splitId[1];
+
+      // Delete item from data structure
+
+      // Delete item from the UI
+
+      // Update and display new total budget, inc, exps & percentages
+    }
   };
 
   return {
