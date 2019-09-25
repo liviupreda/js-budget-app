@@ -1,5 +1,5 @@
 // -- BUDGET DATA CONTROLLER
-const dataController = (function () {
+const dataController = (function() {
   // Store inc and exp in two arrays, part of the allItems object
   let data = {
     allItems: {
@@ -10,25 +10,41 @@ const dataController = (function () {
     totalAmounts: {
       exp: 0,
       inc: 0
-    }
+    },
+    // Total budget is income - expenses for the current month
+    totalBudget: 0,
+    // % of the income that is spent; initialize with -1, an invalid value
+    // in case we have no values for inc, exp, budget
+    percentage: -1
   };
 
   // Expense function constructor
-  const Expense = function (id, description, value) {
+  const Expense = function(id, description, value) {
     this.id = id;
     this.description = description;
     this.value = value;
   };
 
   // Income function constructor
-  const Income = function (id, description, value) {
+  const Income = function(id, description, value) {
     this.id = id;
     this.description = description;
     this.value = value;
   };
 
+  // Calculate total income and expenses
+  let totalAmounts = function(type) {
+    let sum = 0;
+    // type is either exp or inc
+    data.allItems[type].forEach(element => {
+      sum += element.value;
+    });
+    // store result in the totalAmounts object
+    data.totalAmounts[type] = sum;
+  };
+
   return {
-    dataAddItem: function (type, description, value) {
+    dataAddItem: function(type, description, value) {
       let dataNewItem, id;
 
       // we want the new item id to be the id of the last
@@ -49,15 +65,41 @@ const dataController = (function () {
       data.allItems[type].push(dataNewItem);
       return dataNewItem;
     },
-
-    test: function () {
+    // Calculate total budget
+    dataTotalBudget: function() {
+      // Calculate total income and expenses
+      totalAmounts('inc');
+      totalAmounts('exp');
+      // Calculate budget: income - expenses
+      data.totalBudget = data.totalAmounts.inc - data.totalAmounts.exp;
+      // Calculate % of income that was spent this month
+      // If income is 0 but we have expenses, we divide by zero and get
+      // % = Infinity; so we calculate % only if income > 0
+      if (data.totalAmounts.inc > 0) {
+        data.percentage = Math.round(
+          (data.totalAmounts.exp / data.totalAmounts.inc) * 100
+        );
+      } else {
+        data.percentage = -1;
+      }
+    },
+    // Returns the total inc, exp, budget and percentage for the app controller
+    getBudget: function() {
+      return {
+        budget: data.totalBudget,
+        totalInc: data.totalAmounts.inc,
+        totalExp: data.totalAmounts.exp,
+        percentage: data.percentage
+      };
+    },
+    test: function() {
       console.log(data);
     }
   };
 })();
 
 // -- UI CONTROLLER
-const UIController = (function () {
+const UIController = (function() {
   // -- Selectors
   const Selectors = {
     inputType: document.querySelector('.add__type'),
@@ -68,7 +110,7 @@ const UIController = (function () {
     listExpenses: document.querySelector('.expenses__list')
   };
   return {
-    getInput: function () {
+    getInput: function() {
       return {
         // type is either inc or exp
         type: Selectors.inputType.value,
@@ -78,13 +120,17 @@ const UIController = (function () {
       };
     },
     // object = item to insert
-    uiAddListItem: function (object, type) {
+    uiAddListItem: function(object, type) {
       let uiHtml;
       // Create HTML string with placeholder text, based on type
       // only if description and value fields are not blank;
       // as we used parsefloat, we need to check that object.value is !NaN
-      // !! not sure how to use JSON.parse and stringify to check for empty string
-      if (object.description !== '' && !isNaN(object.value) && object.value > 0) {
+      // -- ?? how to use JSON.parse and stringify to check for empty string
+      if (
+        object.description !== '' &&
+        !isNaN(object.value) &&
+        object.value > 0
+      ) {
         if (type === 'inc') {
           uiHtml = `
             <div class="item clearfix" id="income-${object.id}">
@@ -119,37 +165,40 @@ const UIController = (function () {
         }
       } else console.log('Please fill out all fields');
     },
-    uiClearInput: function () {
+    uiClearInput: function() {
       Selectors.inputDescription.value = '';
       Selectors.inputValue.value = '';
       // Focus on the description field to easily add another item
       Selectors.inputDescription.focus();
     },
-    uiGetSelectors: function () {
+    uiGetSelectors: function() {
       return Selectors;
     }
   };
 })();
 
 // -- GLOBAL APP CONTROLLER
-const appController = (function (dataCtrl, UICtrl) {
-  const addEventListeners = function () {
+const appController = (function(dataCtrl, UICtrl) {
+  const addEventListeners = function() {
     const UISelectors = UICtrl.uiGetSelectors();
     UISelectors.inputSubmitButton.addEventListener('click', appAddItem);
 
     // Return key pressed event in global document
-    document.addEventListener('keyup', function (e) {
+    document.addEventListener('keyup', function(e) {
       if (e.keyCode === 13 || e.which === 13) appAddItem();
     });
   };
 
-  const appTotalBudget = function () {
+  const appTotalBudget = function() {
     // Calculate total budget
-    // Return total budget
+    dataCtrl.dataTotalBudget();
+    // Get budget from data ctrl
+    let budget = dataCtrl.getBudget();
     // Display total budget in UI
+    console.log(budget);
   };
 
-  const appAddItem = function () {
+  const appAddItem = function() {
     let appInput, appNewItem;
     // Get field input data
     appInput = UICtrl.getInput();
@@ -165,12 +214,12 @@ const appController = (function (dataCtrl, UICtrl) {
     UICtrl.uiAddListItem(appNewItem, appInput.type);
     // Clear input
     UICtrl.uiClearInput();
-    // Calculate and update budget
+    // Calculate and update budget for every new item entered
     appTotalBudget();
   };
 
   return {
-    appInit: function () {
+    appInit: function() {
       console.log('App running...');
       addEventListeners();
     }
