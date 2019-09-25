@@ -65,6 +65,20 @@ const dataController = (function() {
       data.allItems[type].push(dataNewItem);
       return dataNewItem;
     },
+    // Delete Item
+    dataDeleteItem: (type, id) => {
+      // Loop over all elements in the inc/ exp array
+      let ids = data.allItems[type].map(element => {
+        return element.id;
+      });
+      // Find the index of the element we want to delete
+      let index = ids.indexOf(id); // index = -1 if the element is not found
+
+      if (index !== -1) {
+        // Use splice to delete the element from the array
+        data.allItems[type].splice(index, 1);
+      }
+    },
     // Calculate total budget
     dataTotalBudget: function() {
       // Calculate total income and expenses
@@ -244,15 +258,14 @@ const appController = (function(dataCtrl, UICtrl) {
     // which added when each item is added (uiAddListItem())
     let itemId, splitId, type, id;
     itemId = e.target.parentNode.parentNode.parentNode.parentNode.id;
-    console.log(itemId);
     if (itemId) {
       // inc-x ; exp-y
       splitId = itemId.split('-');
       type = splitId[0];
-      id = splitId[1];
+      id = parseInt(splitId[1]); //string converted to number  as arg for dataDeleteItem()
 
       // Delete item from data structure
-
+      dataCtrl.dataDeleteItem(type, id);
       // Delete item from the UI
 
       // Update and display new total budget, inc, exps & percentages
