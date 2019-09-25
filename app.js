@@ -1,4 +1,6 @@
 // -- BUDGET DATA CONTROLLER
+// !! -- Note to self: arrow fct expressions do not have their own .this;
+// therefore they are NOT suited for method functions
 const dataController = (function() {
   // Store inc and exp in two arrays, part of the allItems object
   let data = {
@@ -23,6 +25,21 @@ const dataController = (function() {
     this.id = id;
     this.description = description;
     this.value = value;
+    this.percentage = -1;
+  };
+
+  // Add calculate percentages method to Expense prototype
+  Expense.prototype.calcPercentage = function(totalIncome) {
+    if (totalIncome > 0) {
+      this.percentage = Math.round((this.value / totalIncome) * 100);
+    } else {
+      this.percentage = -1;
+    }
+  };
+
+  // Get percentage method to Expense proto
+  Expense.prototype.getPercentage = function() {
+    return this.percentage;
   };
 
   // Income function constructor
@@ -66,7 +83,7 @@ const dataController = (function() {
       return dataNewItem;
     },
     // Delete Item
-    dataDeleteItem: (type, id) => {
+    dataDeleteItem: function(type, id) {
       // Loop over all elements in the inc/ exp array
       let ids = data.allItems[type].map(element => {
         return element.id;
@@ -96,6 +113,17 @@ const dataController = (function() {
       } else {
         data.percentage = -1;
       }
+    },
+    dataCalculatePercentages: function() {
+      data.allItems.exp.forEach(element => {
+        element.calcPercentage(data.totalAmounts.inc);
+      });
+    },
+    dataGetPercentages: function() {
+      let expPercentages = data.allItems.exp.map(element => {
+        return element.getPercentage();
+      });
+      return expPercentages;
     },
     // Returns the total inc, exp, budget and percentage for the app controller
     getBudget: function() {
@@ -185,7 +213,7 @@ const UIController = (function() {
       } else console.log('Please fill out all fields');
     },
     // id = inc-x/ exp-y
-    uiDeleteListItem: id => {
+    uiDeleteListItem: function(id) {
       // we cannot delete an item directly, so we move to parent
       // and then removeChild
       let item = document.getElementById(id);
@@ -240,6 +268,15 @@ const appController = (function(dataCtrl, UICtrl) {
     UICtrl.displayBudget(budget);
   };
 
+  const appUpdatePercentages = function() {
+    // calculate %'s
+    dataCtrl.dataCalculatePercentages();
+    // read %'s from dataController
+    let percentages = dataCtrl.dataGetPercentages();
+    // update UI with new %'s
+    console.log(percentages);
+  };
+
   const appAddItem = function() {
     let appInput, appNewItem;
     // Get field input data
@@ -258,6 +295,8 @@ const appController = (function(dataCtrl, UICtrl) {
     UICtrl.uiClearInput();
     // Calculate and update budget for every new item entered
     appTotalBudget();
+    // Calculate and update %'s
+    appUpdatePercentages();
   };
 
   const appDeleteItem = function(e) {
