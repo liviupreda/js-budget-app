@@ -208,9 +208,9 @@ const UIController = (function() {
                 </div>
             </div>
             `;
-          // insert uiHtml into the DOM
-          Selectors.listExpenses.insertAdjacentHTML('beforeend', uiHtml);
         }
+        // insert uiHtml into the DOM
+        Selectors.listExpenses.insertAdjacentHTML('beforeend', uiHtml);
       } else console.log('Please fill out all fields');
     },
     // id = inc-x/ exp-y
@@ -307,13 +307,20 @@ const appController = (function(dataCtrl, UICtrl) {
 
     // Add item to Data Controller
     // appNewItem will be passed to the uiAddListItem method
-    appNewItem = dataCtrl.dataAddItem(
-      appInput.type,
-      appInput.description,
-      appInput.value
-    );
-    // Add item to UI
-    UICtrl.uiAddListItem(appNewItem, appInput.type);
+    if (
+      appInput.description !== '' &&
+      !isNaN(appInput.value) &&
+      appInput.value > 0
+    ) {
+      appNewItem = dataCtrl.dataAddItem(
+        appInput.type,
+        appInput.description,
+        appInput.value
+      );
+      // Add item to UI
+      UICtrl.uiAddListItem(appNewItem, appInput.type);
+    } else console.log('Please fill out all fields');
+
     // Clear input
     UICtrl.uiClearInput();
     // Calculate and update budget for every new item entered
