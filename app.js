@@ -86,7 +86,7 @@ const dataController = (function() {
     // Returns the total inc, exp, budget and percentage for the app controller
     getBudget: function() {
       return {
-        budget: data.totalBudget,
+        totalBudget: data.totalBudget,
         totalInc: data.totalAmounts.inc,
         totalExp: data.totalAmounts.exp,
         percentage: data.percentage
@@ -107,7 +107,11 @@ const UIController = (function() {
     inputValue: document.querySelector('.add__value'),
     inputSubmitButton: document.querySelector('.add__btn'),
     listIncomes: document.querySelector('.income__list'),
-    listExpenses: document.querySelector('.expenses__list')
+    listExpenses: document.querySelector('.expenses__list'),
+    topBudget: document.querySelector('.budget__value'),
+    topIncome: document.querySelector('.budget__income--value'),
+    topExpenses: document.querySelector('.budget__expenses--value'),
+    topPercentage: document.querySelector('.budget__expenses--percentage')
   };
   return {
     getInput: function() {
@@ -171,6 +175,19 @@ const UIController = (function() {
       // Focus on the description field to easily add another item
       Selectors.inputDescription.focus();
     },
+    // Display total budget, inc, exp & % in the UI
+    displayBudget: function(object) {
+      Selectors.topBudget.textContent = object.totalBudget;
+      Selectors.topIncome.textContent = object.totalInc;
+      Selectors.topExpenses.textContent = object.totalExp;
+      // only display percentage if > 0 (i.e. incomes added)
+      // otherwise display '---'
+      if (object.percentage > 0) {
+        Selectors.topPercentage.textContent = object.percentage + '%';
+      } else {
+        Selectors.topPercentage.textContent = '---';
+      }
+    },
     uiGetSelectors: function() {
       return Selectors;
     }
@@ -195,7 +212,7 @@ const appController = (function(dataCtrl, UICtrl) {
     // Get budget from data ctrl
     let budget = dataCtrl.getBudget();
     // Display total budget in UI
-    console.log(budget);
+    UICtrl.displayBudget(budget);
   };
 
   const appAddItem = function() {
@@ -221,6 +238,13 @@ const appController = (function(dataCtrl, UICtrl) {
   return {
     appInit: function() {
       console.log('App running...');
+      // Once app is initialized, display budget, inc, exp and % initial values (0)
+      UICtrl.displayBudget({
+        totalBudget: 0,
+        totalInc: 0,
+        totalExp: 0,
+        percentage: -1
+      });
       addEventListeners();
     }
   };
