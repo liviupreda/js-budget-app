@@ -147,6 +147,9 @@ const UIController = (function() {
     inputType: document.querySelector('.add__type'),
     inputDescription: document.querySelector('.add__description'),
     inputValue: document.querySelector('.add__value'),
+    inputTypeClass: '.add__type',
+    inputDescriptionClass: '.add__description',
+    inputValueClass: '.add__value',
     inputSubmitButton: document.querySelector('.add__btn'),
     listIncomes: document.querySelector('.income__list'),
     listExpenses: document.querySelector('.expenses__list'),
@@ -188,6 +191,14 @@ const UIController = (function() {
 
     return (type === 'exp' ? '-' : '+') + ' ' + integer + '.' + decimals;
   };
+
+  const nodeListForEach = function(list, callback) {
+    for (let i = 0; i < list.length; i++) {
+      // call the callback function in the nodeListForEach function
+      callback(list[i], i);
+    }
+  };
+
   return {
     getInput: function() {
       return {
@@ -282,19 +293,19 @@ const UIController = (function() {
       // loop through nodes and change the textContent for each
       // instead of converting the node list to an array, we shall
       // write a nodeListForEach function to do this
-      const nodeListForEach = function(list, callback) {
-        for (let i = 0; i < list.length; i++) {
-          // call the callback function in the nodeListForEach function
-          callback(list[i], i);
-        }
-      };
+      // const nodeListForEach = function(list, callback) {
+      //   for (let i = 0; i < list.length; i++) {
+      //     // call the callback function in the nodeListForEach function
+      //     callback(list[i], i);
+      //   }
+      // };
 
       nodeListForEach(percFields, function(element, index) {
         // Make sure to not display negative or 0%
         if (percs[index] > 0) {
           element.textContent = percs[index] + '%';
         } else {
-          element.textContent = percs[index] + '---';
+          element.textContent = '---';
         }
       });
     },
@@ -321,6 +332,21 @@ const UIController = (function() {
       currYear = currTime.getFullYear();
       Selectors.topCurrentDate.textContent = months[currMonth] + ' ' + currYear;
     },
+    uiSwitchType: function() {
+      let allInputs = document.querySelectorAll(
+        Selectors.inputTypeClass +
+          ',' +
+          Selectors.inputDescriptionClass +
+          ',' +
+          Selectors.inputValueClass
+      );
+
+      nodeListForEach(allInputs, function(element) {
+        // whenever the type changes, class will be toggled
+        element.classList.toggle('red-focus');
+        Selectors.inputSubmitButton.classList.toggle('red');
+      });
+    },
     uiGetSelectors: function() {
       return Selectors;
     }
@@ -340,6 +366,10 @@ const appController = (function(dataCtrl, UICtrl) {
     // Add event handler for .container; this will be used with event delegation
     // to determine when the delete button is pressed for both inc and exp
     UISelectors.bottomContainer.addEventListener('click', appDeleteItem);
+
+    // Add change event handler for dropdown; this will be used to change
+    // the input focus color and submit button color based on amount type
+    UISelectors.inputType.addEventListener('change', UICtrl.uiSwitchType);
   };
 
   const appTotalBudget = function() {
