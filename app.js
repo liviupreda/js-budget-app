@@ -184,6 +184,13 @@ const UIController = (function() {
         }
       } else console.log('Please fill out all fields');
     },
+    // id = inc-x/ exp-y
+    uiDeleteListItem: id => {
+      // we cannot delete an item directly, so we move to parent
+      // and then removeChild
+      let item = document.getElementById(id);
+      item.parentNode.removeChild(item);
+    },
     uiClearInput: function() {
       Selectors.inputDescription.value = '';
       Selectors.inputValue.value = '';
@@ -267,8 +274,9 @@ const appController = (function(dataCtrl, UICtrl) {
       // Delete item from data structure
       dataCtrl.dataDeleteItem(type, id);
       // Delete item from the UI
-
+      UICtrl.uiDeleteListItem(itemId);
       // Update and display new total budget, inc, exps & percentages
+      appTotalBudget();
     }
   };
 
